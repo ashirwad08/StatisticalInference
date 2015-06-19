@@ -315,18 +315,16 @@ means.df <- data.frame(supp=levels(ToothGrowth$supp), means=c(means[[1]], means[
               
 ```   
 
-Each observation in this dataset seems to record the length of the tooth when administered with a certain dosage of supplement OJ or VC. Doses are discrete levels of 0.5, 1.0, 1.5, and 2.0 units; there are two supplements administered: "OJ" and "VC". The mean length of tooth growth when OJ is administered is `r means[[1]]` units, and when VC is administered the mean length is `r means[[2]]` units.
+Each observation in this dataset seems to record the length of the tooth when administered with a certain dosage of supplement OJ or VC. Doses are discrete levels of 0.5, 1.0, 1.5, and 2.0 units; there are two supplements administered: "OJ" and "VC". The mean length of tooth growth when OJ is administered is `r means[[1]]` units, and when VC is administered the mean length is `r means[[2]]` units.  
 
-### Assumptions
+## Data Analysis  
 
-At this point, given the lack of any supporting documentation, we state some assumptions about the data:  
+At this point, given the lack of any supporting documentation, we state some assumptions about the data itself:  
 * "len" represents the length of tooth growth in an unknown unit
 * "supp" represents the supplements used in this experiment: "OJ", "VC"
 * "dose" regulates the amount of supplement administered. It is discrete and units are unknown. 
 
-## Data Analysis
-
-We first look at the distribution of tooth growth lengths when administered under each supplement: 
+We now look at the distribution of tooth growth lengths when administered under each supplement: 
 
 ```{r}
 g <- ggplot(data=ToothGrowth, aes(x=len, y=..density.., fill=..density..))
@@ -352,26 +350,64 @@ g1 + geom_point()+
         
 ```   
 
-The plot seems to suggest the following:  
+The plot _seems to_ suggest the following:  
 * There is a correlation between length and dosage amount 0.5 and 1.0 for both supplements.
-* There is no data for either supplement at dosage amount 1.5.
-* Any effect on length at dosage amount of 2.0 for either supplement is unclear.
+* There is __no data__ for either supplement at dosage amount 1.5.
+* Any effect on length at dosage amount of 2.0 for either supplement is __unclear__.
 * Overall, the average sample tooth growth length is greater for "OJ" than it is for "VC".  
 
 
 ## Hypothesis Tests
 
-Given the summary above, we setup the following tests to help determine the effect of the 2 supplements and their doses on tooth growth:  
+Given the summary above, we setup the following tests to help determine the effect of the 2 supplements and their doses on tooth growth. For the tests, the following assumptions are made:  
 
-### Test 1: Supplement Effects at Dose = 1.0
+* These are independent groups, i.e. the subjects in each dose group are __not__ the same.
+* The variances unequal, and are allowed to be corrected by the t.test function
 
-We assume the **NULL hypothesis, H0** is true: There is no difference in effect between either supplement at dose=1.0.  
+### Hypothesis Tests: T-Tests Comparing Tooth Growth by Doses Administered per Supplement
 
-We also assume that our subjects are **not** paired, and that each dosage was administered to independent subjects to measure unhindered tooth growth.
+We now perform 3 tests to determine the effectiveness of each supplement by dosage, on tooth groth.   
 
-First, we extract our sample subset at dose = 1.0:
+In the first test (which serves as the template for the subsequent tests), we compare the effect on tooth growth between supplements OJ and VC at dose = 0.5. We assume that the NULL hypothesis, $H_0$: $\mu_\bar{x}_OJ0.5$ = $\mu_\bar{x}_VC0.5$, is true.
+
 ```{r}
-TG1.0 <- subset(ToothGrowth, dose==1.0)
-OJSample <- nrow(TG1.0[])
+# Function to take in the dosage group and perform a t-test on supplement effect on length
+doseTest <- function(d) {
+        testdf <- NULL
+        testdf <- subset(ToothGrowth, dose==d, select=c('len', 'supp'))
+        
+        # apply t.test to compare the mean lengths by supplement at the dosage group
+        t.test(len ~ as.factor(supp), paired=FALSE, data=testdf)
+}
+```
+```{r}
+doseTest(0.5)
+```   
+
+Here, we see that the 95% confidence interval is above zero, suggesting that the mean of supplement OJ at dose=0.5 is larger than the mean of VC at the same dose. The p value of `r doseTest(0.5)$p.value*100`% is very unlikely, thus causing us to __reject__ the NULL hypothesis.  
+
+Similarly, we repeat the _t-test_ to compare the 2 supplements in dose groups 1.0 and 2.0, respectively:
+```{r}
+doseTest(1)
+doseTest(2)
+```   
+We note that for dose = 1.0, the p value of `r doseTest(1)$p.value*100`% is unlikely, thus causing us to __reject__ the NULL hypothesis. However, for dose = 2.0, the p value of `r doseTest(2)$p.value*100`% is well within the 95th percentile of values that comply with the NULL hypothesis. In this case, then, the NULL hypothesis stands: _We are confident that there is no difference in mean between the 2 supplements at dose=2.0_.   
+
+# Assumptions and Conclusions  
+
+The following assumptions must be restated for the tests conducted above:  
+* The subjects in each dosage groups are independent, i.e. the distribution in each group is not paired. 
+* Unequal variance between groups has been assumed.
+* In the absence of population means and standard deviations, the sample means and standard deviations of each group have been used in calculating the standard error of the mean and t-stats.  
+
+The scatter plot and the tests performed on the dataset help us conclude the following:  
+* At dose=0.5, we are very confident that OJ results in higher tooth growth than VC
+* At dose=1.0, we are reasonably confident that OJ results in higher tooth growth than VC
+* At dose=2.0, we are very confident that there is no discernible difference in tooth growth between the supplements
+* Overall, it seems that OJ is more effective than VC at increasing tooth growth when administered at doses 0.5 or 1.0.  
+
+__END OF REPORT__
+
+
 
 
