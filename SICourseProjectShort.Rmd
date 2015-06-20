@@ -1,46 +1,35 @@
 ---
-title: "Exponential Distribution Simulation and Tooth Growth Analysis"
+title: "Exponential Distribution Simulation; Tooth Growth Analysis"
 author: "Ash Chakraborty"
 date: "Wednesday, June 17, 2015"
 output:
-  pdf_document:
-    highlight: kate
+  word_document:
+    highlight: zenburn
+  pdf_document: default
   html_document:
     theme: cerulean
-  word_document: default
 ---
 
 # PART 1: SIMULATION - Sampling the Exponential Distribution
 
-## Synopsis
+Part 1 of this report investigates the _Exponential Distribution_ and compares it to the _Central Limit Theorem_. We conduct simulations on this distribution with a sample size of 40 exponentials by generating a sampling distribution of sample means. The consequences of this sampling distribution will be evaluated for adherence to the central limit theorem.  
 
-Part 1 of this report investigates the _Exponential Distribution_ and compares it to the _Central Limit Theorem_. The exponential distribution is given by the probability distribution function, $P(x)=\lambda e^{-\lambda x}$. We also know that it has a mean, $\mu = 1/\lambda$, and variance, $\sigma^{2}=1/\lambda^{2}$. This report will conduct an appropriate number of simulations on this distribution with a sample size of 40 exponentials by generating a sampling distribution of sample means. The consequences of this sampling distribution will be evaluated for adherence to the central limit theorem.  
-
-## Exponential Distribution
-
-Sample size, n = 40 with a rate parameter, $\lambda = 0.2$. We first generate a sample of 40 random exponentials:
-```{r global_options, echo=TRUE, warning=FALSE, message=FALSE, tidy=TRUE, highlight=TRUE, fig.path="/figures"}
+```{r global_options, echo=FALSE, warning=FALSE, message=FALSE, tidy=TRUE, highlight=TRUE}
 library(PerformanceAnalytics)
 library(ggplot2)
 library(gridExtra)
-set.seed(123)
+```
+```{r echo=TRUE}
+set.seed(123) 
 sample <- rexp(40, rate=0.2)
 ```  
-## Simulating 1000 Trials
+We conduct a 1000 simulations, and extract the mean of each sample:
 
-In order to understand the properties of the distribution of the mean of 40 exponentials, we conduct a 1000 simulations, and extract the mean of each sample:
-
-```{r}
+```{r echo=TRUE}
 samp.dist <- NULL
-for(i in 1:1000){
-        #extract sample of 40 and take mean of that sample
-        samp.dist <- c(samp.dist, mean(rexp(40, rate=0.2)))
-}
-summary(samp.dist)
+for(i in 1:1000) {samp.dist <- c(samp.dist, mean(rexp(40, rate=0.2)))}
 ```   
-### Comparing Variance and Mean to Theoretical Variance and Mean
-
-Now, we plot this sampling distribution:  
+## Comparing Variance and Mean to Theoretical Variance and Mean  
 
 ```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
@@ -104,30 +93,25 @@ g3+geom_histogram(aes(x=samp.dist, fill=..count..), col="black")+
         theme(legend.position="none")
 ```  
 
-The distribution of a 1000 means of 40 random exponentials has begun to resemble a Gaussian distribution. We continue to note from the earlier plot that the sampling distribution's mean and variance may be given by:
+The distribution has begun to resemble a Gaussian distribution.
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 #distribution sample mean and variance
 print(paste0("Mean of Sampling Distribution: ", round(mean(samp.dist), 4)))
 print(paste0("Variance of Distribution: ", round(var(samp.dist), 4)))
-
 ```   
-The theoretical mean of the exponential distribution is given by $1/\lambda$ ($\lambda = 0.2$), which is equal to `r 1/0.2`. The sampling distribution's mean is a fairly good approximation. Furthermore, the theoretical variance of the sampling distribution: $(1/\lambda^{2})/n$, which = `r (1/0.2^2)/40`. Here, it seems that the variance obtained from the sampling distribution of `r round(var(samp.dist), 4)`, is a fair approximation of the theoretical variance.   
+The theoretical mean of the exponential distribution is given by $1/\lambda$ ($\lambda = 0.2$) = `r 1/0.2`. **The sampling distribution's mean is a fairly good approximation**. The theoretical variance of the sampling distribution: $(1/\lambda^{2})/n$ = `r (1/0.2^2)/40`. **The variance obtained from the sampling distribution is a good approximation**.  
 
 ## Verifying Distribution Normality
 
-In order to confirm that the sampling distribution obtained above is indeed normal we will conduct two simulations with greater sample sizes, n= 100 and n = 1000 and conduct a 1000 trials and compute the variance and skew to give us an idea of the density curve.  
+We will conduct two simulations with larger sample sizes (n= 100 & 1000), conduct a 1000 trials and compute the _variance_ and _skew_ :
 
-```{r}
+```{r echo=TRUE}
 #sim 1, sample size = 100
 samp.dist1 <- NULL
-for(i in 1:1000){
-        #extract sample of 100 #take mean of that sample
-        samp.dist1 <- c(samp.dist1, mean(rexp(100, rate=0.2)))}
+for(i in 1:1000){samp.dist1 <- c(samp.dist1, mean(rexp(100, rate=0.2)))}
 #sim 2, sample size=1000
 samp.dist2 <- NULL
-for(i in 1:1000){
-        #extract sample of 1000 #take mean of that sample
-        samp.dist2 <- c(samp.dist2, mean(rexp(1000, rate=0.2)))}
+for(i in 1:1000){samp.dist2 <- c(samp.dist2, mean(rexp(1000, rate=0.2)))}
 ```  
 Plotting the resulting sampling distributions side by side:  
 
@@ -239,8 +223,6 @@ g5 <- ggplot() + geom_histogram(aes(x=samp.dist2,
 grid.arrange(g4, g5, ncol=2)
 ```   
 
-Consequently, we observe the following:  
-
 * The mean is approximated more closely as the sample size increases (in line with CLT)
 * Variance of sampling distribution significantly decreases (in line with CLT)
 * The skew of the density curve get smaller, suggesting a normal curve
@@ -249,23 +231,17 @@ Consequently, we observe the following:
 
 # PART 2: Analyzing Tooth Growth Data
 
-## Synopsis
-
-We are going to load the ToothGrowth dataset that's part of the "datasets" package in R. We run some summary analysis on this dataset, in addition to testing hypotheses to extract any relationships between supplement, dosage, and tooth length.
+We run some summary analysis on this dataset, in addition to testing hypotheses to extract any relationships between supplement, dosage, and tooth length.
 
 ## Data Summary
 
-We see that the dataset is setup as follows:
-
 ```{r echo=FALSE}
 library(datasets)
-#ToothGrowth[sample(nrow(ToothGrowth), 5),]
-summary(ToothGrowth)
 #storing means separately to plot lines later
 means <- with(ToothGrowth, tapply(len, supp, mean))
 means.df <- data.frame(supp=levels(ToothGrowth$supp), means=c(means[[1]], means[[2]]))        
 ```   
-Visually, the dataset is spread out into groups by supplement and dosage:   
+The scatter below shows the dataset spread out into groups by supplement and dosage:   
 
 ```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
@@ -282,23 +258,16 @@ g1 + geom_point()+
         theme_bw() 
 ```   
 
-The plot _seems to_ suggest the following:  
-
 * There is a positive correlation between length and dosage amount 0.5 and 1.0 for both supplements.
-* There is no data for either supplement at dosage amount 1.5.
+* There is _no data_ for either supplement at dosage amount 1.5.
 * Any effect on length at dosage amount of 2.0 for either supplement is unclear.
 * Overall, the average sample tooth growth length is greater for "OJ" than it is for "VC".
 
 ## Hypothesis Testing
 
-For the tests, the following assumptions are made:  
+In the first test (which serves as the template for the subsequent tests), we compare the effect on tooth growth between supplements OJ and VC at dose = 0.5. We **assume** that the NULL hypothesis, $H_0:\mu_{xOJ}=\mu_{xVC}$, is true; independent groups, and unequal variance.
 
-* These are independent groups
-* The variances are unequal  
-
-In the first test (which serves as the template for the subsequent tests), we compare the effect on tooth growth between supplements OJ and VC at dose = 0.5. We assume that the NULL hypothesis, $H_0:\mu_{xOJ}=\mu_{xVC}$, is true.
-
-```{r}
+```{r echo=TRUE}
 # Function to take in the dosage group and perform a t-test on supplement effect on length
 doseTest <- function(d) {
         testdf <- NULL
@@ -307,12 +276,10 @@ doseTest <- function(d) {
         t.test(len ~ supp, paired=FALSE, data=testdf)}
 doseTest(0.5)
 ```
-Here, we see that the 95% confidence interval is above zero, suggesting that the mean of supplement OJ at dose=0.5 is larger than the mean of VC at the same dose. The p value of `r round(doseTest(0.5)$p.value*100, 2)`% is very unlikely, thus causing us to **reject** the NULL hypothesis.  
-
-Similarly, we repeat the _t-test_ to compare the 2 supplements in dose groups 1.0 and 2.0, respectively:
-```{r}
-doseTest(1)
-doseTest(2)
+Here, we see that the 95% confidence interval is above zero. The p value of `r round(doseTest(0.5)$p.value*100, 2)`% is very unlikely, thus causing us to _reject_ the NULL hypothesis. **Under a similar assumption, we repeat the _t-test_ to get the probability of the alternate hypothesis for the other dosage groups**:
+```{r echo=TRUE}
+doseTest(1)$p.value
+doseTest(2)$p.value
 ```   
 We note that for dose = 1.0, the p value of `r round(doseTest(1)$p.value*100, 2)`% is unlikely, thus causing us to **reject** the NULL hypothesis. However, for dose = 2.0, the p value of `r round(doseTest(2)$p.value*100, 2)`% is well within the 95th percentile of values that comply with the NULL hypothesis. In this case, then, the NULL hypothesis **stands**.   
 
@@ -320,7 +287,7 @@ We note that for dose = 1.0, the p value of `r round(doseTest(1)$p.value*100, 2)
 
 The following assumptions must be restated for the tests conducted above:  
 
-* The subjects in each dosage groups are independent
+* The subjects in each dosage groups are independent (not paired)
 * Unequal variance between groups has been assumed  
 
 The scatter plot and the tests performed on the dataset help us conclude the following:  
@@ -404,113 +371,7 @@ g3+geom_histogram(aes(x=samp.dist, fill=..count..), col="black")+
 
 ## (PART 1) Verifying Normality  
 
-```{r eval=FALSE, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
-# PLOT SIM 1
-g4 <- ggplot() + geom_histogram(aes(x=samp.dist1, 
-                                    y=..density.., 
-                                    fill=..count.., 
-                                    col="black"))+
-        scale_fill_gradient("Count", 
-                            low = "green", 
-                            high = "red")+
-        geom_density(aes(samp.dist1), col="black", size=1)+
-        
-        #mean of sampling dist.
-        geom_vline(aes(xintercept=mean(samp.dist1)),
-                   linetype="longdash", 
-                   col="blue")+
-        geom_text(aes(x=mean(samp.dist1)*1.2, 
-                      y=.9,
-                      label=paste0("Mean = ",
-                                   round(mean(samp.dist1), 4))
-                      ), 
-                  col="blue", size=3
-                  )+
-
-        #variance of sampling dist.
-        geom_text(aes(y=.8, 
-                      x=mean(samp.dist1)*1.2,
-                      label=paste0("Variance = ", 
-                                   round(var(samp.dist1), 4))
-                      ), 
-                  col="blue", size=3
-                  )+ 
-        
-        #kurtosis
-        geom_text(aes(y=.7,
-                      x=mean(samp.dist1)*1.2,
-                      label=paste0("Kurtosis = ", round(kurtosis(samp.dist1), 4))
-                      ),
-                  col="blue", size=3
-                  )+
-        
-        #skew
-        geom_text(aes(y=.6,
-                      x=mean(samp.dist1)*1.2,
-                      label=paste0("Skew = ", round(skewness(samp.dist1), 4))
-                      ),
-                  col="blue", size=3
-                  )+
-        
-        labs(title="Sampling Distribution \n Sample Size = 100 \n 1000 Trials",
-                x="Means", y="Density")+
-        theme_bw()+
-        theme(legend.position="none")
-
-# PLOT SIM 2
-g5 <- ggplot() + geom_histogram(aes(x=samp.dist2, 
-                                    y=..density.., 
-                                    fill=..count.., 
-                                    col="black"))+
-        scale_fill_gradient("Count", 
-                            low = "green", 
-                            high = "red")+
-        geom_density(aes(samp.dist2), col="black", size=1)+
-        
-        #mean of sampling dist.
-        geom_vline(aes(xintercept=mean(samp.dist2)),
-                   linetype="longdash", 
-                   col="blue")+
-        geom_text(aes(x=mean(samp.dist2)*1.05, 
-                      y=.9+1.5,
-                      label=paste0("Mean  = ",
-                                   round(mean(samp.dist2), 4))
-                      ), 
-                  col="blue", size=3
-                  )+
-
-        #variance of sampling dist.
-        geom_text(aes(y=.8+1.4, 
-                      x=mean(samp.dist2)*1.05,
-                      label=paste0("Variance = ", 
-                                   round(var(samp.dist2), 4))
-                      ), 
-                  col="blue", size=3
-                  )+ 
-        
-        #kurtosis
-        geom_text(aes(y=.7+1.3,
-                      x=mean(samp.dist1)*1.05,
-                      label=paste0("Kurtosis = ", round(kurtosis(samp.dist2), 4))
-                      ),
-                  col="blue", size=3
-                  )+
-        
-        #skew
-        geom_text(aes(y=.6+1.2,
-                      x=mean(samp.dist2)*1.05,
-                      label=paste0("Skew = ", round(skewness(samp.dist2), 4))
-                      ),
-                  col="blue", size=3
-                  )+
-        
-        labs(title="Sampling Distribution \n Sample Size = 1000 \n 1000 Trials",
-                x="Means", y="Density")+
-        theme_bw()+
-        theme(legend.position="none")
-
-grid.arrange(g4, g5, ncol=2)
-```  
+This code chunk is quite large and may be found in its entirety [in github: markdown](https://github.com/ashirwad08/StatisticalInference.git).  
 
 ## (PART 2) ToothGrowth Summary
 
