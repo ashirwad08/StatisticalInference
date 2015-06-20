@@ -1,0 +1,107 @@
+---
+title: "Tooth Growth Analysis and Hypothesis Tests"
+author: "Ash Chakraborty"
+date: "Wednesday, June 17, 2015"
+output:
+  pdf_document:
+    toc: no
+  html_document:
+    theme: readable
+  word_document: default
+---
+
+```{r global_options, echo=FALSE, warning=FALSE, message=FALSE, tidy=TRUE, highlight=TRUE, fig.path="/figures", fig.width=9}
+library(ggplot2)
+library(gridExtra)
+```  
+# PART 2: Analyzing Tooth Growth Data
+
+We are going to load the ToothGrowth dataset that's part of the "datasets" package in R. We run a basic analysis on this dataset, in addition to verifying assumptions around confidence intervals to extract any correlations between supplement dosage and tooth length.
+
+We see that the dataset is setup as follows:
+
+```{r globaloptions, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+library(datasets)
+summary(ToothGrowth)
+means <- with(ToothGrowth, tapply(len, supp, mean))
+means.df <- data.frame(supp=levels(ToothGrowth$supp), means=c(means[[1]], means[[2]]))     
+```   
+
+Each observation in this dataset seems to record the length of the tooth when administered with a certain dosage of supplement OJ or VC. Doses are discrete levels of 0.5, 1.0, 1.5, and 2.0 units. The mean length of tooth growth when OJ is administered is `r round(means[[1]], 2)` units, and when VC is administered the mean length is `r round(means[[2]], 2)` units.  
+
+Now, let's get an idea of the relationship between length and dosage per supplement:
+
+```{r fig2chunk, echo=FALSE, message=FALSE, warning=FALSE}
+g1 <- ggplot(data=ToothGrowth, aes(x=dose, y=len, group=supp, col=supp, size=len) )
+g1 + geom_point()+
+        geom_jitter(position=position_jitter(width=0.1))+
+        geom_smooth(alpha=0.3, method="loess")+ 
+        geom_hline(data=means.df, aes(yintercept=c(means[[1]], means[[2]]), col=supp), linetype="longdash")+
+        geom_text(data=means.df, aes(x=1.5, y=c(means[[1]], means[[2]]), col=supp, 
+                                     label=c(paste0("Mean = ", round(means[[1]], 2)), 
+                                             paste0("Mean = ", round(means[[2]], 2)))), 
+                                             size=4, vjust=1)+
+        labs(title="Scatter: Tooth Growth Length Vs. Dose\nof Supplements OJ and VC") +
+        theme_bw() 
+```   
+
+The plot _seems to_ suggest the following:  
+
+* There is a correlation between length and dosage amount 0.5 and 1.0 for both supplements.
+* There is __no data__ for either supplement at dosage amount 1.5.
+* Any effect on length at dosage amount of 2.0 for either supplement is __unclear__.
+* Overall, the average sample tooth growth length is greater for "OJ" than it is for "VC".  
+
+## Hypothesis Tests
+
+Given the summary above, we setup the following tests to help determine the effect of the 2 supplements and their doses on tooth growth. In the first test (which serves as the template for the subsequent tests), we compare the effect on tooth growth between supplements OJ and VC at dose = 0.5. **We assume that the NULL hypothesis, $H_0:\mu_{x_{OJ}}=\mu_{x_{VC}}$, is true**.
+
+```{r echo=TRUE}
+# Function to take in the dosage group and perform a t-test on supplement effect on length
+doseTest <- function(d) {
+        testdf <- NULL
+        testdf <- subset(ToothGrowth, dose==d, select=c('len', 'supp'))
+        # apply t.test to compare the mean lengths by supplement at the dosage group
+        t.test(len ~ as.factor(supp), paired=FALSE, data=testdf)}
+doseTest(0.5)
+```   
+
+Here, we see that the 95% confidence interval is above zero, suggesting that the mean of supplement OJ at dose=0.5 is larger than the mean of VC at the same dose. The p value of `r round(doseTest(0.5)$p.value*100, 2)`% is very unlikely, thus causing us to **reject** the NULL hypothesis. **Under similar assumptions, we repeat the _t-test_ to compare the 2 supplements in dose groups 1.0 and 2.0, respectively**:  
+
+```{r}
+doseTest(1)
+doseTest(2)
+```   
+We note that for dose = 1.0, the p value of `r round(doseTest(1)$p.value*100, 2)`% is unlikely, thus causing us to **reject** the NULL hypothesis. However, for dose = 2.0, the p value of `r round(doseTest(2)$p.value*100, 2)`% is well within the 95th percentile of values that comply with the NULL hypothesis. In this case, then, the NULL hypothesis **stands**.   
+
+# Assumptions and Conclusions  
+
+The following assumptions must be restated for the tests conducted above:  
+
+* The subjects are independent, i.e. the distribution in each group is not paired. 
+* Unequal variance between groups has been assumed.  
+
+The scatter plot and the tests performed on the dataset help us conclude the following:  
+
+* At dose=0.5, OJ results in higher tooth growth than VC
+* At dose=1.0, OJ results in higher tooth growth than VC
+* At dose=2.0, there is no discernible difference in tooth growth between the supplements
+* Overall, it seems that OJ is more effective than VC at increasing tooth growth when administered at doses 0.5 or 1.0.  
+
+**END OF REPORT**  
+
+# APPENDIX 1: GIT CODE
+
+The entire markdown file can be found in this [github repo](https://github.com/ashirwad08/StatisticalInference.git).  
+
+# APPENDIX 2: PLOT CODE 
+
+## Data Scatter by Supplement Group and Dosage 
+
+```{r fig2chunk, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE, error=FALSE}
+```
+
+
+
+
+
