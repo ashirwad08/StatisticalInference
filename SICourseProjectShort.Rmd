@@ -3,14 +3,12 @@ title: "Exponential Distribution Simulation and Tooth Growth Analysis"
 author: "Ash Chakraborty"
 date: "Wednesday, June 17, 2015"
 output:
-  pdf_document: default
+  pdf_document:
+    highlight: kate
   html_document:
     theme: cerulean
   word_document: default
 ---
-
-# Overview
-This report consists of two parts. Part 1 conducts a number of simulations on the exponential distribution in order to compare it to the central limit theorem, whereas Part 2 analyzes and tests certain hypotheses about Tooth growth's relationship with certain supplements.
 
 # PART 1: SIMULATION - Sampling the Exponential Distribution
 
@@ -20,15 +18,14 @@ Part 1 of this report investigates the _Exponential Distribution_ and compares i
 
 ## Exponential Distribution
 
-We are to work with a sample size, n = 40 with a rate parameter, $\lambda = 0.2$. We first generate a sample of 40 random exponentials:
-```{r global_options, echo=TRUE, warning=FALSE, message=FALSE, tidy=TRUE, highlight=TRUE, fig.path="/figures", fig.width=9}
+Sample size, n = 40 with a rate parameter, $\lambda = 0.2$. We first generate a sample of 40 random exponentials:
+```{r global_options, echo=TRUE, warning=FALSE, message=FALSE, tidy=TRUE, highlight=TRUE, fig.path="/figures"}
 library(PerformanceAnalytics)
 library(ggplot2)
 library(gridExtra)
 set.seed(123)
 sample <- rexp(40, rate=0.2)
 ```  
-
 ## Simulating 1000 Trials
 
 In order to understand the properties of the distribution of the mean of 40 exponentials, we conduct a 1000 simulations, and extract the mean of each sample:
@@ -41,10 +38,10 @@ for(i in 1:1000){
 }
 summary(samp.dist)
 ```   
-
 ### Comparing Variance and Mean to Theoretical Variance and Mean
 
-Now, we plot this sampling distribution:
+Now, we plot this sampling distribution:  
+
 ```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 #sampling distribution of sample means
@@ -107,43 +104,33 @@ g3+geom_histogram(aes(x=samp.dist, fill=..count..), col="black")+
         theme(legend.position="none")
 ```  
 
-The distribution of a 1000 means of 40 random exponentials has begun to resemble a Gaussian distribution.   
-
-We continue to note from the earlier plot that the sampling distribution's mean and variance may be given by:
+The distribution of a 1000 means of 40 random exponentials has begun to resemble a Gaussian distribution. We continue to note from the earlier plot that the sampling distribution's mean and variance may be given by:
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 #distribution sample mean and variance
 print(paste0("Mean of Sampling Distribution: ", round(mean(samp.dist), 4)))
 print(paste0("Variance of Distribution: ", round(var(samp.dist), 4)))
 
 ```   
-
-We noted earlier that the theoretical mean of the exponential distribution is given by $1/\lambda$ ($\lambda = 0.2$), which is equal to `r 1/0.2`. When we compare the sampling distribution's mean to this theoretical mean, we see that it is a fairly good approximation.   
-
-Furthermore, the theoretical variance of the sampling distribution is given by the variance of the population mean/sample size, or $(1/\lambda^{2})/n$, which = `r (1/0.2^2)/40`. Here, it seems that the variance obtained from the sampling distribution of `r round(var(samp.dist), 4)`, is a fair approximation of the theoretical variance of the sampling distribution obtained from the population mean.   
+The theoretical mean of the exponential distribution is given by $1/\lambda$ ($\lambda = 0.2$), which is equal to `r 1/0.2`. The sampling distribution's mean is a fairly good approximation. Furthermore, the theoretical variance of the sampling distribution: $(1/\lambda^{2})/n$, which = `r (1/0.2^2)/40`. Here, it seems that the variance obtained from the sampling distribution of `r round(var(samp.dist), 4)`, is a fair approximation of the theoretical variance.   
 
 ## Verifying Distribution Normality
 
-In order to confirm that the sampling distribution obtained above is indeed normal, we will test a consequence of the central limit theorem, i.e. _as the sample size approaches infinity, the variation of the sampling distribution gets smaller_ and thus results in a closer approximation of the population mean.  
-
-We will therefore conduct two simulations with greater sample sizes, n= 100 and n = 1000. We will conduct a 1000 trials and compute the variance, kurtosis and skew to give us an idea of the density curve. **Note: we are looking for these parameters to get smaller, in order to approach a proper normal distribution**.   
-
+In order to confirm that the sampling distribution obtained above is indeed normal we will conduct two simulations with greater sample sizes, n= 100 and n = 1000 and conduct a 1000 trials and compute the variance and skew to give us an idea of the density curve.  
 
 ```{r}
 #sim 1, sample size = 100
 samp.dist1 <- NULL
 for(i in 1:1000){
         #extract sample of 100 #take mean of that sample
-        samp.dist1 <- c(samp.dist1, mean(rexp(100, rate=0.2)))
-}
-
+        samp.dist1 <- c(samp.dist1, mean(rexp(100, rate=0.2)))}
 #sim 2, sample size=1000
 samp.dist2 <- NULL
 for(i in 1:1000){
         #extract sample of 1000 #take mean of that sample
-        samp.dist2 <- c(samp.dist2, mean(rexp(1000, rate=0.2)))
-}
+        samp.dist2 <- c(samp.dist2, mean(rexp(1000, rate=0.2)))}
 ```  
-Plotting the resulting sampling distributions side by side:
+Plotting the resulting sampling distributions side by side:  
+
 ```{r eval= TRUE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
 # PLOT SIM 1
 g4 <- ggplot() + geom_histogram(aes(x=samp.dist1, 
@@ -258,15 +245,13 @@ Consequently, we observe the following:
 * Variance of sampling distribution significantly decreases (in line with CLT)
 * The skew of the density curve get smaller, suggesting a normal curve
 
-We can thus conclude that the sampling distribution of means of the exponential distribution approaches a normal distribution as the sample sizes increase. This is in line with the Central Limit Theorem!  
-
 **END OF PART 1**  
 
 # PART 2: Analyzing Tooth Growth Data
 
 ## Synopsis
 
-We are going to load the ToothGrowth dataset that's part of the "datasets" package in R. The dataset contains 60 observations of tooth length measured while under the administration of supplements "OJ" and "VC" in various dosages. We run some summary analysis on this dataset, in addition to testing hypotheses to extract any relationships between supplement, dosage, and tooth length.
+We are going to load the ToothGrowth dataset that's part of the "datasets" package in R. We run some summary analysis on this dataset, in addition to testing hypotheses to extract any relationships between supplement, dosage, and tooth length.
 
 ## Data Summary
 
@@ -280,13 +265,7 @@ summary(ToothGrowth)
 means <- with(ToothGrowth, tapply(len, supp, mean))
 means.df <- data.frame(supp=levels(ToothGrowth$supp), means=c(means[[1]], means[[2]]))        
 ```   
-At this point, given the lack of any supporting documentation, we state some assumptions about the data itself:  
-
-* "len" represents the length of tooth growth in an unknown unit
-* "supp" represents the supplements used in this experiment: "OJ", "VC"
-* "dose" regulates the amount of supplement administered. It is discrete and units are unknown. 
-
-Each observation in this dataset seems to record the length of the tooth when administered with a certain dosage of supplement OJ or VC. Doses are discrete levels of 0.5, 1.0, 1.5, and 2.0 units; there are two supplements administered: "OJ" and "VC". The mean length of tooth growth when OJ is administered is `r round(means[[1]], 2)` units, and when VC is administered the mean length is `r round(means[[2]], 2)` units. *Visually:* 
+Visually, the dataset is spread out into groups by supplement and dosage:   
 
 ```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
@@ -312,10 +291,10 @@ The plot _seems to_ suggest the following:
 
 ## Hypothesis Testing
 
-Given the summary above, we setup the following tests to help determine the effect of the 2 supplements and their doses on tooth growth. For the tests, the following assumptions are made:  
+For the tests, the following assumptions are made:  
 
-* These are independent groups, i.e. the subjects in each dose group are _not_ the same.
-* The variances unequal, and are allowed to be corrected by the t.test function  
+* These are independent groups
+* The variances are unequal  
 
 In the first test (which serves as the template for the subsequent tests), we compare the effect on tooth growth between supplements OJ and VC at dose = 0.5. We assume that the NULL hypothesis, $H_0:\mu_{xOJ}=\mu_{xVC}$, is true.
 
@@ -324,14 +303,10 @@ In the first test (which serves as the template for the subsequent tests), we co
 doseTest <- function(d) {
         testdf <- NULL
         testdf <- subset(ToothGrowth, dose==d, select=c('len', 'supp'))
-        
         # apply t.test to compare the mean lengths by supplement at the dosage group
-        t.test(len ~ supp, paired=FALSE, data=testdf)
-}
-
+        t.test(len ~ supp, paired=FALSE, data=testdf)}
 doseTest(0.5)
 ```
-
 Here, we see that the 95% confidence interval is above zero, suggesting that the mean of supplement OJ at dose=0.5 is larger than the mean of VC at the same dose. The p value of `r round(doseTest(0.5)$p.value*100, 2)`% is very unlikely, thus causing us to **reject** the NULL hypothesis.  
 
 Similarly, we repeat the _t-test_ to compare the 2 supplements in dose groups 1.0 and 2.0, respectively:
@@ -339,21 +314,20 @@ Similarly, we repeat the _t-test_ to compare the 2 supplements in dose groups 1.
 doseTest(1)
 doseTest(2)
 ```   
-We note that for dose = 1.0, the p value of `r round(doseTest(1)$p.value*100, 2)`% is unlikely, thus causing us to **reject** the NULL hypothesis. However, for dose = 2.0, the p value of `r round(doseTest(2)$p.value*100, 2)`% is well within the 95th percentile of values that comply with the NULL hypothesis. In this case, then, the NULL hypothesis stands: _We are confident that there is no difference in mean between the 2 supplements at dose=2.0_.   
+We note that for dose = 1.0, the p value of `r round(doseTest(1)$p.value*100, 2)`% is unlikely, thus causing us to **reject** the NULL hypothesis. However, for dose = 2.0, the p value of `r round(doseTest(2)$p.value*100, 2)`% is well within the 95th percentile of values that comply with the NULL hypothesis. In this case, then, the NULL hypothesis **stands**.   
 
 # Assumptions and Conclusions  
 
 The following assumptions must be restated for the tests conducted above:  
 
-* The subjects in each dosage groups are independent, i.e. the distribution in each group is not paired
-* Unequal variance between groups has been assumed
-* In the absence of population means and standard deviations, the sample means and standard deviations of each group have been used in calculating the standard error of the mean and t-stats.  
+* The subjects in each dosage groups are independent
+* Unequal variance between groups has been assumed  
 
 The scatter plot and the tests performed on the dataset help us conclude the following:  
 
-* At dose=0.5, we are confident that OJ results in higher tooth growth than VC
-* At dose=1.0, we are confident that OJ results in higher tooth growth than VC
-* At dose=2.0, we are confident that there is no discernible difference in tooth growth between the supplements
+* At dose=0.5, OJ results in higher tooth growth than VC
+* At dose=1.0, OJ results in higher tooth growth than VC
+* At dose=2.0, there is no discernible difference in tooth growth between the supplements
 * Overall, it seems that OJ is more effective than VC at increasing tooth growth when administered at doses 0.5 or 1.0.  
 
 **END OF REPORT**  
