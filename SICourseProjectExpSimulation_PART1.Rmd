@@ -14,6 +14,8 @@ output:
 
 ## Synopsis
 
+Test update from MAC
+
 Part 1 of this project investigates the _Exponential Distribution_ and compares it to the _Central Limit Theorem_. The exponential distribution is given by the probability distribution function, $P(x)=\lambda e^{-\lambda x}$. We also know that it has a mean, $\mu = 1/\lambda$, and variance, $\sigma^{2}=1/\lambda^{2}$. This report will conduct an appropriate number of simulations on this distribution with a sample size of 40 exponentials by generating a sampling distribution of sample means. The consequences of this sampling distribution will be evaluated for adherence to the central limit theorem.  
 
 ## Exponential Distribution
